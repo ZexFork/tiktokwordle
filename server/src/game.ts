@@ -2,20 +2,32 @@ import { LetterEval } from "./types.js";
 
 export async function fetchRandomWord(targetLength: number = 5): Promise<string> {
   try {
-    const response = await fetch(`https://random-word-api.vercel.app/api?words=1&length=${targetLength}`);
+    const response = await fetch("https://api.siputzx.my.id/api/games/susunkata");
+
     if (!response.ok) {
       throw new Error(`API responded with status: ${response.status}`);
     }
-    const responseData = await response.json();
-    
-    if (Array.isArray(responseData) && responseData.length > 0 && typeof responseData[0] === 'string') {
-      return responseData[0].toUpperCase();
-    } else {
-      throw new Error('Invalid API response format');
+
+    const json = await response.json();
+
+    // ambil jawaban dari API
+    const jawaban = json?.data?.jawaban;
+
+    if (typeof jawaban !== "string") {
+      throw new Error("Format API tidak valid");
     }
+
+    // validasi panjang (kalau mau)
+    if (jawaban.length !== targetLength) {
+      throw new Error("Panjang kata tidak sesuai target");
+    }
+
+    return jawaban.toUpperCase();
   } catch (error) {
-    console.error('🌐 Failed to fetch word from API:', error);
-    throw error;
+    console.error("❌ Gagal fetch kata:", error);
+
+    // fallback biar game ga crash
+    return "ERROR";
   }
 }
 
